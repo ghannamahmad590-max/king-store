@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # قاعدة البيانات PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: king-store-db
+    environment:
+      POSTGRES_USER: king_user
+      POSTGRES_PASSWORD: king_password_123
+      POSTGRES_DB: king_store
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U king_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - king-network
+
+  # Backend Flask
+  backend:
+    build: ./backend
+    container_name: king-store-backend
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://king_user:king_password_123@db:5432/king_store
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - king-network
+    command: python app.py
+
+  # Frontend (Nginx)
+  frontend:
+    image: nginx:alpine
+    container_name: king-store-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - king-network
+
+volumes:
+  postgres_data:
+
+networks:
+  king-network:
+    driver: bridge

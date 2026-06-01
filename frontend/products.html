@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتجات - 👑 KING Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>👑 KING</h1>
+                <p>متجر الملابس الفاخرة</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="products.html" class="active">المنتجات</a>
+                <a href="cart.html" class="cart-link">
+                    🛒 السلة <span class="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Products Page -->
+    <section class="products-page">
+        <div class="page-header">
+            <h1>مجموعة المنتجات الكاملة</h1>
+            <p>اختر من بين مئات المنتجات الفاخرة</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <select id="categoryFilter" class="filter-select">
+                <option value="">جميع الفئات</option>
+                <option value="men">رجالي</option>
+                <option value="women">نسائي</option>
+                <option value="kids">أطفال</option>
+                <option value="accessories">إكسسوارات</option>
+            </select>
+
+            <input type="range" id="priceFilter" class="filter-range" min="0" max="500" value="500">
+            <label for="priceFilter">السعر: <span id="priceValue">500</span> ريال</label>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsContainer">
+            <!-- سيتم ملء المنتجات من الـ API -->
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>جاري تحميل المنتجات...</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 KING Store. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <img id="modalProductImage" src="" alt="Product">
+                <div class="modal-info">
+                    <h2 id="modalProductName"></h2>
+                    <p id="modalProductDescription"></p>
+                    <div class="price-section">
+                        <span class="price" id="modalProductPrice"></span>
+                    </div>
+                    <input type="number" id="quantityInput" min="1" value="1" class="quantity-input">
+                    <button id="addToCartBtn" class="btn btn-primary btn-large">أضف إلى السلة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // تحميل المنتجات
+        let allProducts = [];
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                displayProducts(allProducts);
+            } catch (error) {
+                console.error('خطأ في تحميل المنتجات:', error);
+            }
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p class="category">${product.category}</p>
+                    <span class="price">${product.price} ريال</span>
+                    <button class="btn btn-secondary btn-small" onclick="openProductModal(${product.id})">عرض التفاصيل</button>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+
+        function openProductModal(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (product) {
+                document.getElementById('modalProductImage').src = product.image;
+                document.getElementById('modalProductName').textContent = product.name;
+                document.getElementById('modalProductDescription').textContent = product.description;
+                document.getElementById('modalProductPrice').textContent = `${product.price} ريال`;
+                document.getElementById('productModal').style.display = 'block';
+            }
+        }
+
+        // إغلاق الـ Modal
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('productModal').style.display = 'none';
+        };
+
+        // إضافة إلى السلة
+        document.getElementById('addToCartBtn').onclick = function() {
+            const quantity = parseInt(document.getElementById('quantityInput').value);
+            // يتم تنفيذ إضافة السلة من script.js
+        };
+
+        // تصفية المنتجات
+        document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+        document.getElementById('priceFilter').addEventListener('change', function() {
+            document.getElementById('priceValue').textContent = this.value;
+            filterProducts();
+        });
+
+        function filterProducts() {
+            const category = document.getElementById('categoryFilter').value;
+            const maxPrice = parseInt(document.getElementById('priceFilter').value);
+            
+            const filtered = allProducts.filter(p => 
+                (!category || p.category === category) && p.price <= maxPrice
+            );
+            displayProducts(filtered);
+        }
+
+        // تحميل المنتجات عند فتح الصفحة
+        loadProducts();
+    </script>
+</body>
+</html>

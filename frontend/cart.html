@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>السلة - 👑 KING Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>👑 KING</h1>
+                <p>متجر الملابس الفاخرة</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="products.html">المنتجات</a>
+                <a href="cart.html" class="active">🛒 السلة</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Shopping Cart Page -->
+    <section class="cart-page">
+        <h1>سلة التسوق</h1>
+        
+        <div class="cart-container">
+            <!-- Cart Items -->
+            <div class="cart-items">
+                <div id="emptyCart" class="empty-cart">
+                    <p>🛒 السلة فارغة</p>
+                    <a href="products.html" class="btn btn-primary">تسوق الآن</a>
+                </div>
+                <div id="cartItemsList"></div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary">
+                <h2>ملخص الطلب</h2>
+                <div class="summary-row">
+                    <span>المجموع:</span>
+                    <span id="subtotal">0 ريال</span>
+                </div>
+                <div class="summary-row">
+                    <span>الشحن:</span>
+                    <span id="shipping">50 ريال</span>
+                </div>
+                <div class="summary-row total">
+                    <span>الإجمالي:</span>
+                    <span id="total">0 ريال</span>
+                </div>
+                <button class="btn btn-primary btn-large" id="checkoutBtn">متابعة الشراء</button>
+                <a href="products.html" class="btn btn-secondary btn-large">متابعة التسوق</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 KING Store. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // تحميل السلة
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsList = document.getElementById('cartItemsList');
+            const emptyCart = document.getElementById('emptyCart');
+            
+            if (cart.length === 0) {
+                emptyCart.style.display = 'block';
+                cartItemsList.innerHTML = '';
+                updateCartSummary([]);
+                return;
+            }
+            
+            emptyCart.style.display = 'none';
+            cartItemsList.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-details">
+                        <h3>${item.name}</h3>
+                        <p>${item.category}</p>
+                        <span class="price">${item.price} ريال</span>
+                    </div>
+                    <div class="item-quantity">
+                        <button onclick="decreaseQuantity(${index})">−</button>
+                        <input type="number" value="${item.quantity}" readonly>
+                        <button onclick="increaseQuantity(${index})">+</button>
+                    </div>
+                    <div class="item-total">
+                        ${item.price * item.quantity} ريال
+                    </div>
+                    <button class="remove-btn" onclick="removeFromCart(${index})">حذف</button>
+                `;
+                cartItemsList.appendChild(itemElement);
+            });
+            
+            updateCartSummary(cart);
+        }
+
+        function updateCartSummary(cart) {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = cart.length > 0 ? 50 : 0;
+            const total = subtotal + shipping;
+            
+            document.getElementById('subtotal').textContent = `${subtotal} ريال`;
+            document.getElementById('shipping').textContent = `${shipping} ريال`;
+            document.getElementById('total').textContent = `${total} ريال`;
+        }
+
+        function increaseQuantity(index) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart[index].quantity++;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+
+        function decreaseQuantity(index) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart[index].quantity > 1) {
+                cart[index].quantity--;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                loadCart();
+            }
+        }
+
+        function removeFromCart(index) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+
+        document.getElementById('checkoutBtn').addEventListener('click', function() {
+            alert('شكراً لك! سيتم تحديث نظام الدفع قريباً');
+        });
+
+        loadCart();
+    </script>
+</body>
+</html>
