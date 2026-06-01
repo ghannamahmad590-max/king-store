@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Digital Clock - Multiple Time Zones</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>⏰ Digital Clock</h1>
+            <p>Current Time in Different Time Zones</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="add-timezone-btn" class="btn btn-primary">
+                ➕ Add Time Zone
+            </button>
+            <button id="reset-btn" class="btn btn-secondary">
+                🔄 Reset to Default
+            </button>
+            <label class="format-toggle">
+                <input type="checkbox" id="format-24h" checked>
+                <span>24-Hour Format</span>
+            </label>
+        </div>
+
+        <!-- Time Zones Grid -->
+        <div class="timezones-grid" id="timezonesGrid">
+            <!-- Clock cards will be inserted here -->
+        </div>
+
+        <!-- Add Timezone Modal -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Add New Time Zone</h2>
+                <div class="form-group">
+                    <label for="timezone-select">Select Time Zone:</label>
+                    <select id="timezone-select">
+                        <option value="">Choose a timezone...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="timezone-label">Custom Label (optional):</label>
+                    <input type="text" id="timezone-label" placeholder="e.g., My Office">
+                </div>
+                <button id="add-btn" class="btn btn-primary btn-block">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
